@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tafiya Web Reader Library</title>
+
+  <style>
+    :root {
+      --bg: #f4f4f4;
+      --card: #ffffff;
+      --ink: #111111;
+      --muted: #666666;
+      --line: #dddddd;
+      --accent: #2f9e6e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+
+    .top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .home-link {
+      flex: 0 0 auto;
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+    }
+
+    .home-link:hover {
+      border-color: #bbbbbb;
+    }
+
+    .status {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .book-count {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .book-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 18px;
+    }
+
+    .book-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 150px;
+      box-shadow: 0 10px 28px -22px rgba(0,0,0,0.45);
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      overflow: hidden;
+    }
+
+    .book-card:hover {
+      transform: translateY(-2px);
+      border-color: #bbbbbb;
+      box-shadow: 0 16px 32px -24px rgba(0,0,0,0.55);
+    }
+
+    .thumb-wrap {
+      width: 100%;
+      aspect-ratio: 148 / 210;
+      background: #f7f7f7;
+      border: 1px solid #eeeeee;
+      border-radius: 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .thumb-wrap.is-hidden {
+      display: none;
+    }
+
+    .book-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #ffffff;
+    }
+
+    .book-code {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      border-radius: 999px;
+      background: #eef7f2;
+      color: #22734f;
+      font-weight: 800;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      padding: 5px 9px;
+      margin-bottom: 14px;
+    }
+
+    .book-title {
+      font-size: 1.22rem;
+      font-weight: 800;
+      line-height: 1.18;
+      margin-bottom: 12px;
+    }
+
+    .book-meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 22px 14px 36px;
+      }
+
+      .top {
+        flex-direction: column;
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+
+      .home-link {
+        align-self: flex-start;
+        padding: 8px 14px;
+        font-size: 0.95rem;
+      }
+
+      .subtitle {
+        font-size: 0.98rem;
+      }
+
+      .book-count {
+        margin-bottom: 12px;
+      }
+
+      .book-list {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .book-card {
+        display: grid;
+        grid-template-columns: 82px 1fr;
+        grid-template-rows: auto auto auto;
+        column-gap: 12px;
+        align-items: center;
+        min-height: 0;
+        padding: 10px;
+        border-radius: 16px;
+      }
+
+      .book-card:hover {
+        transform: none;
+      }
+
+      .thumb-wrap {
+        grid-column: 1;
+        grid-row: 1 / span 3;
+        width: 82px;
+        aspect-ratio: 148 / 210;
+        margin-bottom: 0;
+        border-radius: 12px;
+      }
+
+      .book-code {
+        grid-column: 2;
+        grid-row: 1;
+        font-size: 0.68rem;
+        padding: 4px 8px;
+        margin-bottom: 6px;
+      }
+
+      .book-title {
+        grid-column: 2;
+        grid-row: 2;
+        font-size: 1rem;
+        line-height: 1.15;
+        margin-bottom: 5px;
+      }
+
+      .book-meta {
+        grid-column: 2;
+        grid-row: 3;
+        font-size: 0.82rem;
+        line-height: 1.25;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="top">
+      <div>
+        <div class="eyebrow">Haaraya Literacy</div>
+        <h1>Tafiya Library</h1>
+        <p class="subtitle">Choose a book to open it in the web reader.</p>
+      </div>
+
+      <a class="home-link" href="index.html">← Home</a>
+    </header>
+
+    <p id="bookCount" class="book-count"></p>
+
+    <section id="bookList" class="book-list">
+      <div class="status">Loading books…</div>
+    </section>
+  </main>
+
+  <script>
+    const THUMBNAIL_ROOT = "thumbnails/covers";
+
+    const bookList = document.getElementById("bookList");
+    const bookCount = document.getElementById("bookCount");
+
+    function text(value) {
+      if (value === null || value === undefined) return "";
+      return String(value).trim();
+    }
+
+    function escapeHtml(value) {
+      return text(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalizeBooks(payload) {
+      if (Array.isArray(payload)) return payload;
+      if (payload && Array.isArray(payload.books)) return payload.books;
+      return [];
+    }
+
+    function levelNumber(book) {
+      const raw = text(book.level);
+      const match = raw.match(/\d+/);
+      return match ? Number(match[0]) : 999;
+    }
+
+    function bookTypeOrder(book) {
+      const type = text(book.book_type).toLowerCase();
+
+      if (type.includes("concept")) return 1;
+      if (type.includes("fiction")) return 2;
+      if (type.includes("folktale")) return 3;
+      if (type.includes("non")) return 4;
+
+      return 9;
+    }
+
+    function bookCode(book) {
+      return text(book.book_code || book.code);
+    }
+
+    function bookHref(book) {
+      const code = encodeURIComponent(bookCode(book));
+      return `reader/index.html?book=${code}`;
+    }
+
+    function safeFileTitle(title) {
+      return text(title)
+        .replace(/[\\/:*?"<>|]/g, "")
+        .replace(/\s+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_+|_+$/g, "");
+    }
+
+    function thumbnailPath(book) {
+      const explicit = text(book.thumbnail_image_path);
+      if (explicit) return explicit;
+
+      const code = bookCode(book);
+      const title = safeFileTitle(book.title);
+
+      if (!code || !title) return "";
+
+      const file = `${code}_${title}_fc.jpg`;
+      return `${THUMBNAIL_ROOT}/${encodeURIComponent(file)}`;
+    }
+
+    function metaLabel(book) {
+      const level = levelNumber(book);
+      const levelName = text(book.tafiya_name || book.level_name);
+      const strand = text(book.strand) || "Tafiya";
+      const type = text(book.book_type);
+
+      const left = level !== 999
+        ? `L${level}${levelName ? " " + levelName : ""}`
+        : levelName;
+
+      const right = [strand, type].filter(Boolean).join(" ");
+
+      return [left, right].filter(Boolean).join(" · ");
+    }
+
+    function renderBooks(books) {
+      const cleanBooks = books
+        .filter((book) => bookCode(book))
+        .sort((a, b) => {
+          const levelDiff = levelNumber(a) - levelNumber(b);
+          if (levelDiff) return levelDiff;
+
+          const typeDiff = bookTypeOrder(a) - bookTypeOrder(b);
+          if (typeDiff) return typeDiff;
+
+          return bookCode(a).localeCompare(bookCode(b));
+        });
+
+      bookCount.textContent = `${cleanBooks.length} books`;
+
+      if (!cleanBooks.length) {
+        bookList.innerHTML = '<div class="status">No books found in books.json.</div>';
+        return;
+      }
+
+      bookList.innerHTML = cleanBooks.map((book, index) => {
+        const code = bookCode(book);
+        const title = text(book.title) || code;
+        const thumb = thumbnailPath(book);
+        const meta = metaLabel(book);
+
+        return `
+          <a class="book-card" href="${bookHref(book)}">
+            <div class="thumb-wrap">
+              <img
+                class="book-thumb"
+                src="${escapeHtml(thumb)}"
+                alt=""
+                loading="${index < 6 ? "eager" : "lazy"}"
+                onerror="this.closest('.thumb-wrap').classList.add('is-hidden')"
+              >
+            </div>
+            <div class="book-code">${escapeHtml(code)}</div>
+            <div class="book-title">${escapeHtml(title)}</div>
+            <div class="book-meta">${escapeHtml(meta)}</div>
+          </a>
+        `;
+      }).join("");
+    }
+
+    async function boot() {
+      try {
+        const response = await fetch("books.json", { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error(`Could not load books.json: ${response.status}`);
+        }
+
+        const payload = await response.json();
+        renderBooks(normalizeBooks(payload));
+      } catch (error) {
+        console.error("[Tafiya Library]", error);
+        bookCount.textContent = "";
+        bookList.innerHTML = `
+          <div class="status">
+            Could not load the library. Check that books.json exists beside library.html.
+          </div>
+        `;
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>
